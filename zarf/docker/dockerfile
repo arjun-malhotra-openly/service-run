@@ -1,0 +1,20 @@
+FROM golang:1.19 as build_service_api
+
+ENV CGO_ENABLED 0
+ARG BUILD_REF
+
+COPY . /service
+#RUN go mod init feedme
+#RUN go mod tidy
+
+RUN go build -ldflags "-X main.build={BUILD_REF}"
+
+FROM alpine:3.14
+ARG BUILD_DATE
+ARG BUILD_REF
+COPY --from=build_service_api /service /service/service
+WORKDIR /service
+CMD ["./service"]
+
+
+ 
